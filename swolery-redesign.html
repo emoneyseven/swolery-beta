@@ -1,27 +1,1361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Swolery Redesign</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWOLERY — Gym Jewelry & Apparel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --red: #E8001C;
+    --red-dark: #a80014;
+    --black: #080808;
+    --black-2: #0f0f0f;
+    --black-3: #161616;
+    --gray: #2a2a2a;
+    --gray-light: #555;
+    --white: #f5f5f5;
+    --white-dim: #aaa;
+    --gold: #c9a84c;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-weight: 400;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--red);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(232,0,28,0.5);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: all 0.15s ease;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9990;
+    opacity: 0.35;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 48px;
+    background: linear-gradient(to bottom, rgba(8,8,8,0.98) 0%, transparent 100%);
+    backdrop-filter: blur(2px);
+  }
+
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-decoration: none;
+    position: relative;
+  }
+  .nav-logo span { color: var(--red); }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--red);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .nav-cart {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    border: 1px solid var(--gray);
+    padding: 8px 18px;
+    transition: all 0.2s ease;
+  }
+  .nav-cart:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    position: relative;
+    overflow: hidden;
+    padding: 0 48px 80px;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to right, rgba(8,8,8,0.97) 0%, rgba(8,8,8,0.7) 60%, rgba(8,8,8,0.4) 100%),
+      linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 50%),
+      url('https://swolery.com/cdn/shop/files/gym-bro-bracelet1swolery200001034361180red-939333_7a384e49-20ee-433d-b8f1-bb434237470b.jpg?v=1727710667&width=1500') right center / cover no-repeat;
+  }
+
+  /* Animated grid lines */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,0,28,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,0,28,0.04) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 70%);
+    animation: gridShift 20s linear infinite;
+  }
+  @keyframes gridShift {
+    0% { background-position: 0 0; }
+    100% { background-position: 80px 80px; }
+  }
+
+  .hero-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.3s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(90px, 14vw, 200px);
+    line-height: 0.88;
+    letter-spacing: -2px;
+    color: var(--white);
+    position: relative;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.5s forwards;
+  }
+
+  .hero-title .outline {
+    -webkit-text-stroke: 1px rgba(245,245,245,0.2);
+    color: transparent;
+  }
+
+  .hero-title .red { color: var(--red); }
+
+  .hero-sub-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 40px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.8s forwards;
+  }
+
+  .hero-desc {
+    max-width: 380px;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.7;
+    color: var(--white-dim);
+    border-left: 2px solid var(--red);
+    padding-left: 20px;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .btn-primary {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--white);
+    padding: 16px 36px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: inline-block;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    transform: translateX(-101%);
+    transition: transform 0.3s ease;
+  }
+  .btn-primary:hover { color: var(--black); }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-ghost {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.2s ease;
+  }
+  .btn-ghost:hover { color: var(--white); }
+  .btn-ghost .arrow {
+    width: 30px; height: 1px;
+    background: currentColor;
+    position: relative;
+    transition: width 0.3s ease;
+  }
+  .btn-ghost .arrow::after {
+    content: '';
+    position: absolute;
+    right: 0; top: -3px;
+    width: 6px; height: 6px;
+    border-right: 1px solid currentColor;
+    border-top: 1px solid currentColor;
+    transform: rotate(45deg);
+  }
+  .btn-ghost:hover .arrow { width: 50px; }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    right: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.4s forwards;
+  }
+  .hero-scroll span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gray-light);
+    writing-mode: vertical-rl;
+  }
+  .scroll-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--gray-light), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { transform: scaleY(1); opacity: 1; }
+    50% { transform: scaleY(0.6); opacity: 0.4; }
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--red);
+    padding: 12px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .ticker-inner {
+    display: inline-flex;
+    animation: ticker 20s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 4px;
+    padding: 0 40px;
+    color: var(--white);
+  }
+  .ticker-item.dot {
+    color: rgba(255,255,255,0.4);
+    padding: 0 10px;
+  }
+  @keyframes ticker {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* STATS */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--gray);
+    border-bottom: 1px solid var(--gray);
+  }
+  .stat-item {
+    padding: 48px;
+    border-right: 1px solid var(--gray);
+    position: relative;
+    overflow: hidden;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+    z-index: 0;
+  }
+  .stat-item:hover::before { transform: scaleX(1); }
+  .stat-item * { position: relative; z-index: 1; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--white);
+    display: block;
+  }
+  .stat-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+    margin-top: 8px;
+    display: block;
+    transition: color 0.3s ease;
+  }
+  .stat-item:hover .stat-label { color: rgba(255,255,255,0.7); }
+
+  /* SECTION COMMON */
+  section { padding: 120px 48px; }
+
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .section-label::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    background: var(--red);
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 90px);
+    line-height: 0.9;
+    letter-spacing: 1px;
+  }
+
+  /* FEATURED PRODUCTS */
+  .products-section { background: var(--black-2); }
+
+  .products-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 64px;
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .product-card {
+    background: var(--black-3);
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  .product-card.featured {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  .product-img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(20%) contrast(1.1);
+    transition: transform 0.6s ease, filter 0.4s ease;
+  }
+
+  .product-card.featured .product-img { aspect-ratio: auto; height: 100%; }
+
+  .product-card:hover .product-img {
+    transform: scale(1.05);
+    filter: grayscale(0%) contrast(1.15);
+  }
+
+  .product-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.2) 50%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 28px;
+    transition: background 0.3s ease;
+  }
+
+  .product-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    background: rgba(232,0,28,0.15);
+    border: 1px solid rgba(232,0,28,0.3);
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 12px;
+    width: fit-content;
+  }
+
+  .product-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 6px;
+    line-height: 1.1;
+  }
+
+  .product-card.featured .product-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 2px;
+  }
+
+  .product-price {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white-dim);
+  }
+
+  .product-add {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 44px; height: 44px;
+    background: var(--red);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 300;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    cursor: none;
+  }
+  .product-card:hover .product-add {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* MANIFESTO */
+  .manifesto {
+    background: var(--red);
+    padding: 100px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .manifesto::before {
+    content: 'SWOLERY';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 300px;
+    color: rgba(0,0,0,0.1);
+    line-height: 1;
+    bottom: -40px;
+    right: -20px;
+    pointer-events: none;
+    letter-spacing: -5px;
+  }
+
+  .manifesto-content {
+    max-width: 800px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .manifesto-quote {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 80px);
+    line-height: 1;
+    color: var(--white);
+    letter-spacing: 2px;
+    margin-bottom: 32px;
+  }
+
+  .manifesto-body {
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.8);
+    max-width: 520px;
+  }
+
+  .manifesto-pillars {
+    display: flex;
+    gap: 60px;
+    margin-top: 60px;
+    padding-top: 60px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .pillar-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    color: rgba(255,255,255,0.25);
+    line-height: 1;
+    display: block;
+  }
+
+  .pillar-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    display: block;
+    margin: 4px 0;
+  }
+
+  .pillar-text {
+    font-size: 13px;
+    font-weight: 300;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+  }
+
+  /* CATEGORIES */
+  .categories-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin-top: 60px;
+  }
+
+  .category-card {
+    position: relative;
+    overflow: hidden;
+    height: 480px;
+    cursor: none;
+  }
+
+  .category-bg {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.6s ease;
+  }
+
+  .category-card:nth-child(1) .category-bg {
+    background: url('https://swolery.com/cdn/shop/files/adjustable-bro-braceletbraceletswolery-757570.jpg?v=1727709770&width=800') center/cover no-repeat;
+  }
+  .category-card:nth-child(2) .category-bg {
+    background: url('https://swolery.com/cdn/shop/files/no-excuses-teeswolery1-932456_160a4c44-03fa-43a5-b31e-91e6fe3c7d4d.jpg?v=1756135269&width=800') center/cover no-repeat;
+  }
+
+  .category-card:hover .category-bg { transform: scale(1.02); }
+
+  .category-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+  }
+
+  .category-card:nth-child(1) .category-pattern {
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--white) 0px, var(--white) 1px,
+      transparent 1px, transparent 40px
+    );
+  }
+
+  .category-card:nth-child(2) .category-pattern {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--red) 0px, var(--red) 1px,
+      transparent 1px, transparent 40px
+    );
+  }
+
+  .category-content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 48px;
+    background: linear-gradient(to top, rgba(8,8,8,0.92) 0%, rgba(8,8,8,0.4) 50%, rgba(8,8,8,0.15) 100%);
+  }
+
+  .category-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+    display: block;
+    filter: grayscale(1);
+    transition: filter 0.3s ease;
+  }
+  .category-card:hover .category-icon { filter: grayscale(0); }
+
+  .category-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    letter-spacing: 3px;
+    color: var(--white);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+
+  .category-sub {
+    font-size: 14px;
+    color: var(--white-dim);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+
+  .category-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--red);
+    transition: gap 0.3s ease;
+  }
+  .category-card:hover .category-link { gap: 24px; }
+
+  /* EMAIL */
+  .email-section {
+    background: var(--black-3);
+    padding: 100px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid var(--gray);
+  }
+
+  .email-section::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,0,28,0.07) 0%, transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+
+  .email-content { position: relative; z-index: 1; }
+
+  .email-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 100px);
+    line-height: 0.9;
+    margin-bottom: 20px;
+  }
+
+  .email-sub {
+    font-size: 15px;
+    color: var(--white-dim);
+    font-weight: 300;
+    margin-bottom: 48px;
+  }
+
+  .email-form {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+    gap: 0;
+  }
+
+  .email-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--gray);
+    border-right: none;
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    padding: 16px 20px;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+  .email-input:focus { border-color: var(--red); }
+  .email-input::placeholder { color: var(--gray-light); }
+
+  .email-btn {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    background: var(--red);
+    color: var(--white);
+    border: none;
+    padding: 16px 28px;
+    cursor: none;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+  }
+  .email-btn:hover { background: var(--red-dark); }
+
+  .email-disclaimer {
+    font-size: 11px;
+    color: var(--gray-light);
+    margin-top: 16px;
+    letter-spacing: 1px;
+  }
+
+  /* FOOTER */
+  footer {
+    background: var(--black);
+    border-top: 1px solid var(--gray);
+    padding: 80px 48px 40px;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    margin-bottom: 60px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid var(--gray);
+  }
+
+  .footer-brand-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .footer-brand-name span { color: var(--red); }
+
+  .footer-brand-desc {
+    font-size: 13px;
+    color: var(--white-dim);
+    line-height: 1.7;
+    max-width: 280px;
+    margin-bottom: 28px;
+  }
+
+  .footer-socials {
+    display: flex;
+    gap: 12px;
+  }
+
+  .social-link {
+    width: 38px; height: 38px;
+    border: 1px solid var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white-dim);
+    text-decoration: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0;
+    font-size: 11px;
+  }
+  .social-link:hover {
+    border-color: var(--red);
+    color: var(--red);
+    background: rgba(232,0,28,0.08);
+  }
+
+  .footer-col h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 24px;
+  }
+
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 12px; }
+  .footer-col a {
+    font-size: 13px;
+    color: var(--white-dim);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .footer-col a:hover { color: var(--red); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-copy {
+    font-size: 12px;
+    color: var(--gray-light);
+    letter-spacing: 1px;
+  }
+
+  .footer-payments {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .payment-badge {
+    background: var(--black-3);
+    border: 1px solid var(--gray);
+    padding: 4px 10px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--gray-light);
+    text-transform: uppercase;
+  }
+
+  /* PRODUCT PLACEHOLDER IMAGES */
+  .prod-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .prod-placeholder svg {
+    opacity: 0.15;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .fade-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ANNOUNCEMENT BAR */
+  .announce {
+    background: var(--black);
+    border-bottom: 1px solid var(--gray);
+    padding: 10px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .announce span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white-dim);
+  }
+  .announce .highlight { color: var(--red); font-weight: 600; }
+
+  /* MOBILE - simplified */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .nav-links { display: none; }
+    .hero { padding: 0 20px 60px; }
+    .hero-title { font-size: 72px; }
+    .hero-sub-row { flex-direction: column; align-items: flex-start; gap: 24px; }
+    .hero-scroll { display: none; }
+    section { padding: 80px 20px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat-item { padding: 30px; }
+    .products-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .products-grid { grid-template-columns: 1fr 1fr; }
+    .product-card.featured { grid-column: span 2; grid-row: span 1; }
+    .product-card.featured .product-img { height: 280px; }
+    .manifesto-pillars { flex-direction: column; gap: 32px; }
+    .categories-grid { grid-template-columns: 1fr; }
+    .category-card { height: 360px; }
+    footer { padding: 60px 20px 30px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+    .footer-bottom { flex-direction: column; gap: 16px; }
+    .email-form { flex-direction: column; }
+    .email-input { border-right: 1px solid var(--gray); border-bottom: none; }
+    .announce { padding: 8px 20px; }
+    .announce .right { display: none; }
+  }
+</style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to Swolery</h1>
-    </header>
-    <main>
-        <section>
-            <h2>Our Services</h2>
-            <p>Information about our services</p>
-        </section>
-        <section>
-            <h2>Contact Us</h2>
-            <p>Details on how to contact us</p>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 Swolery Inc.</p>
-    </footer>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Announcement Bar -->
+<div class="announce">
+  <span>Free shipping on orders <span class="highlight">$30+</span> — Ships in 2-3 business days</span>
+  <span>New 45 Plate Chain just dropped — <span class="highlight">Shop Now →</span></span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <img src="https://swolery.com/cdn/shop/files/Untitled_design_32.png?v=1728927203" alt="SWOLERY" style="height:44px; filter: brightness(0) invert(1);">
+  </a>
+  <ul class="nav-links">
+    <li><a href="#jewelry">Jewelry</a></li>
+    <li><a href="#apparel">Apparel</a></li>
+    <li><a href="#bestsellers">Best Sellers</a></li>
+    <li><a href="#about">Our Story</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#" class="nav-cart">Cart (0)</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <p class="hero-eyebrow">Gym Culture. Forged in Iron.</p>
+  <h1 class="hero-title">
+    WEAR<br>
+    <span class="outline">YOUR</span><br>
+    <span class="red">GRIND</span>
+  </h1>
+
+  <div class="hero-sub-row">
+    <p class="hero-desc">
+      Swolery was built for people who treat the gym like a religion. 
+      Jewelry and apparel that represents the iron lifestyle — on and off the platform.
+    </p>
+    <div class="hero-ctas">
+      <a href="#bestsellers" class="btn-primary"><span>Shop Now</span></a>
+      <a href="#about" class="btn-ghost">
+        Our Story
+        <span class="arrow"></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">No Excuses</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Lift Heavy</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Gym Jewelry</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Stay Swole</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Iron Culture</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">No Excuses</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Lift Heavy</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Gym Jewelry</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Stay Swole</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Iron Culture</span><span class="ticker-item dot">✦</span>
+    <!-- Duplicate for seamless loop -->
+    <span class="ticker-item">No Excuses</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Lift Heavy</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Gym Jewelry</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Stay Swole</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Iron Culture</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">No Excuses</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Lift Heavy</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Gym Jewelry</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Stay Swole</span><span class="ticker-item dot">✦</span>
+    <span class="ticker-item">Iron Culture</span><span class="ticker-item dot">✦</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item">
+    <span class="stat-num">23+</span>
+    <span class="stat-label">Products</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">34</span>
+    <span class="stat-label">Verified Reviews</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">$12</span>
+    <span class="stat-label">Starting Price</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">2–3</span>
+    <span class="stat-label">Day Shipping</span>
+  </div>
+</div>
+
+<!-- FEATURED PRODUCTS -->
+<section class="products-section" id="bestsellers">
+  <div class="products-header fade-up">
+    <div>
+      <p class="section-label">Best Sellers</p>
+      <h2 class="section-title">TOP<br>PICKS</h2>
+    </div>
+    <a href="#" class="btn-ghost">
+      View All Products
+      <span class="arrow"></span>
+    </a>
+  </div>
+
+  <div class="products-grid">
+
+    <!-- Featured product - large -->
+    <div class="product-card featured fade-up">
+      <img src="https://swolery.com/cdn/shop/files/IMG_5723.jpg?v=1760632020&width=800" alt="New 45 Plate Chain" class="product-img" style="height:100%; min-height:500px; object-fit:cover;">
+      <div class="product-overlay">
+        <span class="product-tag">Best Seller</span>
+        <div class="product-name">45 Plate Chain</div>
+        <div class="product-price">$50.00</div>
+      </div>
+      <div class="product-add">+</div>
+    </div>
+
+    <!-- Regular products -->
+    <div class="product-card fade-up">
+      <img src="https://swolery.com/cdn/shop/files/gym-bro-bracelet1swolery200001034361180red-939333_7a384e49-20ee-433d-b8f1-bb434237470b.jpg?v=1727710667&width=533" alt="Gym Bro Bracelet" class="product-img">
+      <div class="product-overlay">
+        <span class="product-tag">Jewelry</span>
+        <div class="product-name">Gym Bro Bracelet</div>
+        <div class="product-price">$20.00</div>
+      </div>
+      <div class="product-add">+</div>
+    </div>
+
+    <div class="product-card fade-up">
+      <img src="https://swolery.com/cdn/shop/files/dumbbell-chainswolery-930643.jpg?v=1756135735&width=533" alt="Dumbbell Chain" class="product-img">
+      <div class="product-overlay">
+        <span class="product-tag">New</span>
+        <div class="product-name">Dumbbell Chain</div>
+        <div class="product-price">$50.00</div>
+      </div>
+      <div class="product-add">+</div>
+    </div>
+
+    <div class="product-card fade-up">
+      <img src="https://swolery.com/cdn/shop/files/no-excuses-teeswolery1-401961_8113fae2-7d5e-494f-a525-f137fd5d778e.jpg?v=1756135797&width=533" alt="No Excuses Tee" class="product-img">
+      <div class="product-overlay">
+        <span class="product-tag">Apparel</span>
+        <div class="product-name">No Excuses Tee</div>
+        <div class="product-price">$35.00</div>
+      </div>
+      <div class="product-add">+</div>
+    </div>
+
+    <div class="product-card fade-up">
+      <img src="https://swolery.com/cdn/shop/files/stainless-steel-cuban-link-dumbbell-braceletbraceletswoleryblackcuban-471606.jpg?v=1768957145&width=533" alt="The SwoleRing™" class="product-img">
+      <div class="product-overlay">
+        <span class="product-tag">Jewelry</span>
+        <div class="product-name">The SwoleRing™</div>
+        <div class="product-price">$35.00</div>
+      </div>
+      <div class="product-add">+</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section class="manifesto" id="about">
+  <div class="manifesto-content">
+    <p class="section-label" style="color: rgba(255,255,255,0.6);">What We Stand For</p>
+    <h2 class="manifesto-quote">
+      YOU CAN MAKE EXCUSES.<br>
+      OR YOU CAN MAKE<br>
+      PROGRESS.
+    </h2>
+    <p class="manifesto-body">
+      Swolery was built for people who live by the iron. Not just in the gym — in every corner of life. 
+      Our jewelry and apparel represent something bigger than a workout. It's a statement. 
+      A mindset. A lifestyle that doesn't clock out.
+    </p>
+    <div class="manifesto-pillars">
+      <div class="pillar">
+        <span class="pillar-num">01</span>
+        <span class="pillar-title">Determination</span>
+        <p class="pillar-text">Every rep. Every set. Every day. No matter what.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-num">02</span>
+        <span class="pillar-title">The Grind</span>
+        <p class="pillar-text">Progress isn't given. It's earned one session at a time.</p>
+      </div>
+      <div class="pillar">
+        <span class="pillar-num">03</span>
+        <span class="pillar-title">Mindset</span>
+        <p class="pillar-text">Fear, pain, doubt — all obstacles of the mind. Get swole anyway.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SHOP BY CATEGORY -->
+<section style="padding: 120px 48px; background: var(--black);" id="jewelry">
+  <div class="fade-up">
+    <p class="section-label">Collections</p>
+    <h2 class="section-title">SHOP<br>BY CATEGORY</h2>
+  </div>
+
+  <div class="categories-grid">
+    <div class="category-card fade-up" id="apparel">
+      <div class="category-bg"></div>
+      <div class="category-pattern"></div>
+      <div class="category-content">
+        <h3 class="category-title">GYM JEWELRY</h3>
+        <p class="category-sub">Chains, bracelets, rings, and keychains — all built around the iron. From $12.</p>
+        <a href="#" class="category-link">Shop Jewelry →</a>
+      </div>
+    </div>
+
+    <div class="category-card fade-up">
+      <div class="category-bg"></div>
+      <div class="category-pattern"></div>
+      <div class="category-content">
+        <h3 class="category-title">APPAREL</h3>
+        <p class="category-sub">Tees, hoodies, sweats — built for the gym rat in you. From $35.</p>
+        <a href="#" class="category-link">Shop Apparel →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EMAIL CAPTURE -->
+<div class="email-section">
+  <div class="email-content fade-up">
+    <h2 class="email-title">JOIN THE<br><span style="color:var(--red)">IRON CULT</span></h2>
+    <p class="email-sub">Get 15% off your first order + exclusive drops before anyone else.</p>
+    <form class="email-form" onsubmit="return false;">
+      <input type="email" class="email-input" placeholder="your@email.com">
+      <button class="email-btn">Unlock 15% Off</button>
+    </form>
+    <p class="email-disclaimer">No spam. Just iron. Unsubscribe anytime.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <img src="https://swolery.com/cdn/shop/files/Untitled_design_32.png?v=1728927203" alt="SWOLERY" style="height:52px; filter: brightness(0) invert(1); margin-bottom:16px; display:block;">
+      <p class="footer-brand-desc">Gym jewelry and apparel for people who live the iron lifestyle. No excuses. No days off. Stay swole.</p>
+      <div class="footer-socials">
+        <a href="https://instagram.com/swoleryofficial" class="social-link">IG</a>
+        <a href="#" class="social-link">TT</a>
+        <a href="#" class="social-link">YT</a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Jewelry</a></li>
+        <li><a href="#">Apparel</a></li>
+        <li><a href="#">Best Sellers</a></li>
+        <li><a href="#">New Arrivals</a></li>
+        <li><a href="#">Gift Cards</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Info</h4>
+      <ul>
+        <li><a href="#">Our Story</a></li>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">FAQs</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="https://instagram.com/swoleryofficial">@swoleryofficial</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">YouTube</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2026 Swolery. All rights reserved. Lift heavy or go home.</p>
+    <div class="footer-payments">
+      <span class="payment-badge">Visa</span>
+      <span class="payment-badge">MC</span>
+      <span class="payment-badge">Amex</span>
+      <span class="payment-badge">Apple Pay</span>
+      <span class="payment-badge">Shop Pay</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx + 'px';
+    cursor.style.top = my + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .product-card, .category-card, .stat-item').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '20px';
+      cursor.style.height = '20px';
+      ring.style.width = '60px';
+      ring.style.height = '60px';
+      ring.style.borderColor = 'rgba(232,0,28,0.8)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '12px';
+      cursor.style.height = '12px';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+      ring.style.borderColor = 'rgba(232,0,28,0.5)';
+    });
+  });
+
+  // Scroll-triggered animations
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, 100);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Staggered product card animation
+  document.querySelectorAll('.products-grid .product-card').forEach((card, i) => {
+    card.style.transitionDelay = (i * 0.08) + 's';
+  });
+</script>
 </body>
 </html>
